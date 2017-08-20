@@ -1,76 +1,60 @@
 var PERCENTAGE = process.env.PERCENTAGE ? process.env.PERCENTAGE : 0.95;//读取注入的百分比参数；没有使用默认值
-var NUM = process.env.NUM ? process.env.NUM : 100;//读取注入的url数量参数；没有使用默认值
+var URL_NUM = 100000;
 var fs = require('fs');
-var co = require('co');
 const readline = require('readline');
 
-var readdirAsync = (filePath) => {
-    return (cb) => {
-        fs.readdir(filePath, (err, result) => {
-            cb(err, result);
+
+fs.access('./urls.txt', (err) => {//check the file is exits
+    if (err) {//no exits
+        fs.writeFile('urls.txt', createDataToWrite(), (err) => {//create data and write into a file
+            if (err) console.log('写入文件出错！！！');
+            readFileAndCalculateTime();// without err,calculate and get result time
         });
+    } else {//exits,calculate and get result time
+        readFileAndCalculateTime();
     }
-}
+});
 
-var writeFileAsync = (filePath, data) => {
-    return (cb) => {
-        fs.writeFile(filePath, data, (err) => {
-            cb(err);
-        })
-    }
-}
-
-var readFileAsync = (filePath) => {
-    return (cb) => {
-        fs.readFile(filePath, (err, result) => {
-            cb(err, result);
-        });
-    }
-}
-
-
-//获取时间值
-function getTimeValue() {
-    co(function* () {
-        var resultArr = yield readdirAsync('./');//读取当前文件夹下所有的文件名集合
-        if (resultArr) {
-            if (!resultArr.includes('urls.txt')) {//如果没有存在目标文件，写入保存后，读取，获取结果
-                var writeErr = yield writeFileAsync('./urls.txt', getDataToWrite());
-                if (!writeErr) {
-                    outPutResult();
-                }
-            } else {//存在，直接读取
-                outPutResult();
-            }
-        }
-    });
-}
-
-//构建写入数据
-function getDataToWrite() {
+//create data to write 
+function createDataToWrite() {
     var data = [];
-    //循环构造写入文件的数据
-    for (var i = 1; i <= NUM; i++) {
+    for (var i = 1; i <= URL_NUM; i++) {
         data.push(`${parseFloat(Math.random() * 100).toFixed(2)} http://www.boldseas${i}.com\n`);
     }
     return data.join('');
 }
-//输出结果
-function outPutResult() {
-    var rl = readline.createInterface({input: fs.createReadStream('urls.txt')});//通过readline模块构造读取器
+
+//calculate and get result time
+function readFileAndCalculateTime() {
+    var rl = readline.createInterface({ input: fs.createReadStream('urls.txt') });
     var nums = [];
-    rl.on('line', (line) => {//逐行读取
+    rl.on('line', (line) => {
         var num = parseFloat(line.split(' ')[0]);
-        nums.push({num:num,url:line.split(' ')[1]});
-    }).on('close', () => {//读取完毕，做排序，取结果值得index,输出结果
+        nums.push({ num: num, url: line.split(' ')[1] });
+    }).on('close', () => {
         nums.sort((v1, v2) => v1.num - v2.num);
         var index = parseInt(nums.length * PERCENTAGE);
-        console.log(`percentage:${percentage};index:${index};result:${nums[index].num};url:${nums[index].url}`);
+        var result = nums[index];
+        console.log(`percentage:${PERCENTAGE};index:${index};result:${result.num};url:${result.url}`);
     });
 }
 
+function quickSort(arr) {//if data's amount is very huge,use quick sort is efficient and fast than normal sort
+    if (arr.length <= 1) {
+        return arr;
+    }
+    var pivotIndex = Math.floor(arr.length / 2);
+    var pivot = arr.splice(pivotIndex, 1)[0];
 
-getTimeValue();
+    var left = [];
+    var right = [];
 
-
-
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i].num < pivot.num) {
+            left.push(arr[i]);
+        } else {
+            right.push(arr[i])
+        }
+    }
+    return quickSort(left).concat([pivot], quickSort(right));
+}
