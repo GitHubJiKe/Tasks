@@ -1,5 +1,5 @@
 var PERCENTAGE = process.env.PERCENTAGE ? process.env.PERCENTAGE : 0.95;//读取注入的百分比参数；没有使用默认值
-var URL_NUM = 100000;
+var URL_NUM = 1000000;
 var fs = require('fs');
 const readline = require('readline');
 
@@ -39,7 +39,8 @@ function readFileAndCalculateTime() {
     });
 }
 
-function quickSort(arr) {//if data's amount is very huge,use quick sort is efficient and fast than normal sort
+//if data's amount is very huge,use quick sort is efficient and fast than normal sort
+function quickSort(arr) {
     if (arr.length <= 1) {
         return arr;
     }
@@ -58,3 +59,5 @@ function quickSort(arr) {//if data's amount is very huge,use quick sort is effic
     }
     return quickSort(left).concat([pivot], quickSort(right));
 }
+
+//urls.txt 文件分析结果：十万数据：3.5MB;一百万数据量：35.8MB

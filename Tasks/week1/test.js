@@ -1,9 +1,10 @@
-var timer1 = 0;
+var timer1 = null;
 var timer2 = 0;
 var timer3 = 0;
 var timer4 = 0;
 
-function quickSort(eles){  
+function quickSort(eles){
+    if(!timer1) timer1 = Date.now();
     if(eles.length <=1 ){  
         return eles;  
     }  
@@ -25,27 +26,30 @@ function quickSort(eles){
 
 var arr = [];
 
-for (let i = 0; i <= 1; i++) {
+for (let i = 0; i <= 10000000; i++) {
     arr.push(Math.random() * 100);
 }
 if(quickSort(arr)){
     timer2 = Date.now();
-    console.log(quickSort(arr));
 }
 
-console.log(sort(arr));
+if(sort(arr)){
+    timer4 = Date.now();
+}
+
 
 function sort(arr){
     timer3 = Date.now();
     arr.sort((v1,v2)=>{
         return v1-v2;
     });
-    timer4 = Date.now();
     return arr;
 }
 
-console.log(timer2-timer1)
-console.log(timer4-timer3)
+console.log("quick",timer2-timer1)
+console.log("normal:",timer4-timer3)
+
+//test结果：数量级进行到亿级别的时候，普通的排序还是快过快速排序的，可能是递归未优化的原因，还有就是当亿级别的循环造数组的时候，内存会爆掉
 
 
 
