@@ -1,4 +1,5 @@
 var PERCENTAGE = process.env.PERCENTAGE ? process.env.PERCENTAGE : 0.95;//读取注入的百分比参数；没有使用默认值
+var MIDDLEPERCENTAGE = 0.50;
 var URL_NUM = 1000000;
 var fs = require('fs');
 const readline = require('readline');
@@ -29,8 +30,9 @@ function readFileAndCalculateTime() {
     var rl = readline.createInterface({ input: fs.createReadStream('urls.txt') });
     var nums = [];
     rl.on('line', (line) => {
-        var num = parseFloat(line.split(' ')[0]);
-        nums.push({ num: num, url: line.split(' ')[1] });
+        var tmpArr = line.split(' ');
+        var num = parseFloat(tmpArr[0]);
+        nums.push({ num: num, url: tmpArr[1] });
     }).on('close', () => {
         nums.sort((v1, v2) => v1.num - v2.num);
         var index = parseInt(nums.length * PERCENTAGE);
@@ -61,3 +63,8 @@ function quickSort(arr) {
 }
 
 //urls.txt 文件分析结果：十万数据：3.5MB;一百万数据量：35.8MB
+
+//求值排序思路：
+//对百分比值作分析，以0.50为中间值
+//对大于0.5的使用逆序排序，比如，0.95 > 0.5,那么只要从大到小排序到95%即可终止排序
+//同理对于小于0.5的，使用正序排序，比如0.2 < 0.5 由小及大排到20%即可终止排序
